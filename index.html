@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Snake Game - Game klasik ular dengan berbagai tingkatan kesulitan">
+    <meta name="theme-color" content="#000000">
     <title>Snake Game</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="menu">
-        <h1>Snake Game</h1>
+        <h1>🐍 Snake Game</h1>
         <p>Pilih Tingkatan:</p>
         <button onclick="startGame(1)">Mudah</button>
         <button onclick="startGame(2)">Normal</button>
@@ -18,12 +20,12 @@
         <div id="hp-controls">
             <h3>HP Kontrol</h3>
             <div class="control-row">
-                <button id="up-hp">↑</button>
+                <button id="up-hp" aria-label="Atas">↑</button>
             </div>
             <div class="control-row">
-                <button id="left-hp">←</button>
-                <button id="down-hp">↓</button>
-                <button id="right-hp">→</button>
+                <button id="left-hp" aria-label="Kiri">←</button>
+                <button id="down-hp" aria-label="Bawah">↓</button>
+                <button id="right-hp" aria-label="Kanan">→</button>
             </div>
         </div>
         <div id="canvas-container">
@@ -32,16 +34,16 @@
         <div id="pc-controls">
             <h3>PC Kontrol</h3>
             <div class="control-row">
-                <button id="up-pc">↑</button>
+                <button id="up-pc" aria-label="Atas">↑</button>
             </div>
             <div class="control-row">
-                <button id="left-pc">←</button>
-                <button id="down-pc">↓</button>
-                <button id="right-pc">→</button>
+                <button id="left-pc" aria-label="Kiri">←</button>
+                <button id="down-pc" aria-label="Bawah">↓</button>
+                <button id="right-pc" aria-label="Kanan">→</button>
             </div>
         </div>
         <p id="score">Skor: 0</p>
-        <button id="reset-btn" onclick="resetGame()">Reset</button>
+        <button id="reset-btn" onclick="resetGame()">🔄 Reset</button>
     </div>
     <script src="script.js"></script>
 </body>
