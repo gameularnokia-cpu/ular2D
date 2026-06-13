@@ -5,10 +5,10 @@ const ctx =
 canvas.getContext("2d");
 
 
-const scoreEl =
+const scoreText =
 document.getElementById("score");
 
-const overEl =
+const overText =
 document.getElementById("gameOver");
 
 
@@ -21,94 +21,292 @@ document.getElementById("pauseBtn");
 
 
 const size=20;
-const grid=20;
+
+const total=20;
 
 
-let snake=[];
-let foods=[];
+
+let snake;
+
+let apples;
 
 
 let dx=1;
 let dy=0;
 
 
-let score=0;
+let score;
 
 let running=false;
+
 let paused=false;
 
 
-let speed=150;
+let speed;
 
-let timer;
-let clock;
+let gameTimer;
 
-let time=60;
-
+let timeTimer;
 
 
-function createFoods(){
-
-foods=[];
+let time;
 
 
-while(foods.length<10){
 
-let f={
+function startGame(){
+
+
+clearInterval(gameTimer);
+clearInterval(timeTimer);
+
+
+
+snake=[
+{x:10,y:10}
+];
+
+
+apples=[];
+
+
+dx=1;
+dy=0;
+
+
+score=0;
+
+time=60;
+
+
+speed=150;
+
+
+running=true;
+
+paused=false;
+
+
+
+overText.style.display="none";
+
+pauseBtn.disabled=false;
+
+pauseBtn.innerHTML="PAUSE";
+
+
+
+createApples();
+
+
+
+gameTimer =
+setInterval(
+loop,
+speed
+);
+
+
+
+timeTimer =
+setInterval(()=>{
+
+
+time--;
+
+
+updateScore();
+
+
+if(time<=0){
+
+endGame();
+
+}
+
+
+},1000);
+
+
+}
+
+
+
+
+
+
+function createApples(){
+
+
+while(apples.length<10){
+
+
+let apple={
 
 x:
-Math.floor(Math.random()*grid),
+Math.floor(Math.random()*total),
 
 y:
-Math.floor(Math.random()*grid)
+Math.floor(Math.random()*total)
 
 };
 
 
+
+let bad =
+snake.some(
+s=>s.x==apple.x &&
+s.y==apple.y
+);
+
+
+
+if(!bad)
+apples.push(apple);
+
+
+}
+
+}
+
+
+
+
+
+
+function updateScore(){
+
+scoreText.innerHTML =
+`SKOR: ${score} | WAKTU: ${time}s`;
+
+}
+
+
+
+
+
+function loop(){
+
+
+if(running&&!paused){
+
+moveSnake();
+
+}
+
+
+draw();
+
+
+}
+
+
+
+
+
+function moveSnake(){
+
+
+let head={
+
+x:snake[0].x+dx,
+
+y:snake[0].y+dy
+
+};
+
+
+
 if(
-!snake.some(
-s=>s.x==f.x &&
-s.y==f.y
-)
-)
+head.x<0||
+head.y<0||
+head.x>=total||
+head.y>=total
+){
 
-foods.push(f);
+endGame();
+
+return;
 
 }
 
+
+
+if(
+snake.some(
+s=>s.x==head.x &&
+s.y==head.y
+)
+){
+
+endGame();
+
+return;
+
 }
 
 
 
+snake.unshift(head);
 
-function drawApple(x,y){
 
-ctx.fillStyle="#ff2222";
 
-ctx.beginPath();
-
-ctx.arc(
-x*20+10,
-y*20+10,
-9,
-0,
-Math.PI*2
+let hit =
+apples.findIndex(
+a=>
+a.x==head.x &&
+a.y==head.y
 );
 
-ctx.fill();
+
+
+if(hit!=-1){
+
+
+apples.splice(hit,1);
+
+
+score+=10;
 
 
 
-ctx.fillStyle="green";
+// tambah speed 1%
 
-ctx.fillRect(
-x*20+8,
-y*20,
-4,
-5
+speed*=0.99;
+
+
+
+clearInterval(gameTimer);
+
+
+gameTimer =
+setInterval(
+loop,
+speed
 );
 
+
+
+createApples();
+
+
+
 }
+
+else{
+
+
+snake.pop();
+
+
+}
+
+
+
+updateScore();
+
+}
+
+
 
 
 
@@ -125,110 +323,13 @@ ctx.clearRect(
 
 
 
-snake.forEach((s,i)=>{
+snake.forEach(
+(part,index)=>{
 
 
-if(i==0){
+if(index==0){
 
-
-// kepala segitiga
-
-ctx.fillStyle="#00ff00";
-
-ctx.beginPath();
-
-
-
-if(dx==1){
-
-ctx.moveTo(
-s.x*20+20,
-s.y*20+10
-);
-
-ctx.lineTo(
-s.x*20,
-s.y*20
-);
-
-ctx.lineTo(
-s.x*20,
-s.y*20+20
-);
-
-}
-
-
-
-if(dx==-1){
-
-ctx.moveTo(
-s.x*20,
-s.y*20+10
-);
-
-ctx.lineTo(
-s.x*20+20,
-s.y*20
-);
-
-ctx.lineTo(
-s.x*20+20,
-s.y*20+20
-);
-
-}
-
-
-
-
-if(dy==1){
-
-ctx.moveTo(
-s.x*20+10,
-s.y*20+20
-);
-
-ctx.lineTo(
-s.x*20,
-s.y*20
-);
-
-ctx.lineTo(
-s.x*20+20,
-s.y*20
-);
-
-}
-
-
-
-
-if(dy==-1){
-
-ctx.moveTo(
-s.x*20+10,
-s.y*20
-);
-
-ctx.lineTo(
-s.x*20,
-s.y*20+20
-);
-
-ctx.lineTo(
-s.x*20+20,
-s.y*20+20
-);
-
-}
-
-
-
-ctx.closePath();
-
-ctx.fill();
-
+drawHead(part);
 
 }
 
@@ -238,8 +339,8 @@ else{
 ctx.fillStyle="#009900";
 
 ctx.fillRect(
-s.x*20,
-s.y*20,
+part.x*size,
+part.y*size,
 18,
 18
 );
@@ -252,8 +353,8 @@ s.y*20,
 
 
 
-foods.forEach(
-f=>drawApple(f.x,f.y)
+apples.forEach(
+a=>drawApple(a)
 );
 
 
@@ -264,181 +365,174 @@ f=>drawApple(f.x,f.y)
 
 
 
-function move(){
+
+function drawHead(p){
 
 
-let head={
+ctx.fillStyle="#00ff00";
 
-x:snake[0].x+dx,
-
-y:snake[0].y+dy
-
-};
+ctx.beginPath();
 
 
 
-if(
-head.x<0||
-head.y<0||
-head.x>=grid||
-head.y>=grid
-)
+if(dx==1){
 
-return gameOver();
+ctx.moveTo(
+p.x*size+20,
+p.y*size+10
+);
 
+ctx.lineTo(
+p.x*size,
+p.y*size
+);
 
-
-if(
-snake.some(
-s=>s.x==head.x &&
-s.y==head.y
-)
-)
-
-return gameOver();
-
-
-
-
-snake.unshift(head);
-
-
-
-let eat =
-foods.findIndex(
-f=>
-f.x==head.x &&
-f.y==head.y
+ctx.lineTo(
+p.x*size,
+p.y*size+20
 );
 
 
-
-if(eat!=-1){
-
-
-foods.splice(eat,1);
-
-
-score+=10;
+}
 
 
 
-// tambah cepat 1%
+if(dx==-1){
 
-speed*=0.99;
+ctx.moveTo(
+p.x*size,
+p.y*size+10
+);
 
+ctx.lineTo(
+p.x*size+20,
+p.y*size
+);
 
-clearInterval(timer);
-
-timer=setInterval(
-loop,
-speed
+ctx.lineTo(
+p.x*size+20,
+p.y*size+20
 );
 
 
-
-createFoods();
-
-
-}
-
-else{
-
-snake.pop();
-
-}
-
-
 }
 
 
 
+if(dy==1){
 
+ctx.moveTo(
+p.x*size+10,
+p.y*size+20
+);
 
-function loop(){
+ctx.lineTo(
+p.x*size,
+p.y*size
+);
 
-if(
-running &&
-!paused
-)
-
-move();
-
-
-draw();
-
-}
-
-
-
-
-
-function startGame(){
-
-
-snake=[
-{x:10,y:10}
-];
-
-
-dx=1;
-
-dy=0;
-
-
-score=0;
-
-time=60;
-
-speed=150;
-
-
-running=true;
-
-paused=false;
-
-
-overEl.style.display="none";
-
-
-pauseBtn.disabled=false;
-
-
-
-createFoods();
-
-
-
-clearInterval(timer);
-
-
-timer=setInterval(
-loop,
-speed
+ctx.lineTo(
+p.x*size+20,
+p.y*size
 );
 
 
-
-clock=setInterval(()=>{
-
-
-time--;
-
-
-scoreEl.textContent =
-`SKOR: ${score} | WAKTU: ${time}s`;
+}
 
 
 
-if(time<=0)
-gameOver();
+if(dy==-1){
 
+ctx.moveTo(
+p.x*size+10,
+p.y*size
+);
 
-},1000);
+ctx.lineTo(
+p.x*size,
+p.y*size+20
+);
 
+ctx.lineTo(
+p.x*size+20,
+p.y*size+20
+);
 
 
 }
+
+
+
+ctx.closePath();
+
+ctx.fill();
+
+
+}
+
+
+
+
+
+function drawApple(a){
+
+
+ctx.fillStyle="red";
+
+
+ctx.beginPath();
+
+
+ctx.arc(
+a.x*size+10,
+a.y*size+10,
+8,
+0,
+Math.PI*2
+);
+
+
+ctx.fill();
+
+
+
+ctx.fillStyle="green";
+
+
+ctx.fillRect(
+a.x*size+8,
+a.y*size,
+4,
+5
+);
+
+
+}
+
+
+
+
+
+
+function endGame(){
+
+
+running=false;
+
+
+clearInterval(gameTimer);
+
+clearInterval(timeTimer);
+
+
+overText.style.display="block";
+
+
+pauseBtn.disabled=true;
+
+
+}
+
 
 
 
@@ -446,36 +540,19 @@ gameOver();
 
 function pauseGame(){
 
+if(!running)return;
+
+
 paused=!paused;
 
 
-pauseBtn.textContent =
-paused ?
-"LANJUT" :
+pauseBtn.innerHTML =
+paused?
+"LANJUT":
 "PAUSE";
 
 }
 
-
-
-
-
-function gameOver(){
-
-running=false;
-
-
-clearInterval(timer);
-
-clearInterval(clock);
-
-
-overEl.style.display="block";
-
-
-pauseBtn.disabled=true;
-
-}
 
 
 
@@ -490,31 +567,24 @@ let k=e.key.toLowerCase();
 
 
 
-if(k=="a"&&dx!=1){
-dx=-1;
-dy=0;
+if(k=="w" && dy!=1){
+dx=0;dy=-1;
 }
 
 
-if(k=="d"&&dx!=-1){
-dx=1;
-dy=0;
+if(k=="s" && dy!=-1){
+dx=0;dy=1;
 }
 
 
-
-if(k=="w"&&dy!=1){
-dx=0;
-dy=-1;
+if(k=="a" && dx!=1){
+dx=-1;dy=0;
 }
 
 
-
-if(k=="s"&&dy!=-1){
-dx=0;
-dy=1;
+if(k=="d" && dx!=-1){
+dx=1;dy=0;
 }
-
 
 
 
@@ -528,6 +598,14 @@ pauseGame();
 
 
 
+startBtn.onclick=startGame;
+
+pauseBtn.onclick=pauseGame;
+
+
+
+// swipe
+
 let sx,sy;
 
 
@@ -539,7 +617,6 @@ sx=e.touches[0].clientX;
 sy=e.touches[0].clientY;
 
 });
-
 
 
 canvas.addEventListener(
@@ -570,7 +647,6 @@ dx=-1;dy=0;
 
 
 }
-
 else{
 
 
@@ -591,297 +667,10 @@ dx=0;dy=-1;
 
 
 
-
-
-startBtn.onclick=startGame;
-
-pauseBtn.onclick=pauseGame;
-
-
-
 snake=[
 {x:10,y:10}
 ];
 
-createFoods();
+createApples();
 
-draw();    padding: 20px;
-    }
-    
-    #menu h1 {
-        font-size: 32px;
-    }
-    
-    #hp-controls, #pc-controls {
-        display: none;
-    }
-    
-    canvas {
-        width: 90vw;
-        height: 67.5vw;
-        max-width: 600px;
-        max-height: 450px;
-    }
-    
-    #score {
-        font-size: 20px;
-    }
-}
-
-/* Touch Device Detection */
-@media (hover: none) and (pointer: coarse) {
-    #hp-controls {
-        display: flex !important;
-    }
-}
-```
-
----
-
-## **⚙️ File 3: script.js**
-
-```javascript
-// ============================================
-// SNAKE GAME - JavaScript
-// ============================================
-
-// Canvas & Context
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-// UI Elements
-const scoreElement = document.getElementById('score');
-const menu = document.getElementById('menu');
-const game = document.getElementById('game');
-
-// Game State
-let snake = [{x: 400, y: 300}];
-let direction = {x: 0, y: 0};
-let nextDirection = {x: 0, y: 0};
-let food = [];
-let obstacles = [];
-let score = 0;
-let highScore = 0;
-let gameRunning = false;
-let gameLoop;
-let level;
-let speed = 125;
-let isPaused = false;
-
-// Audio (Optional - add your audio files)
-const eatSound = new Audio('');
-const gameOverSound = new Audio('');
-const bgMusic = new Audio('');
-bgMusic.loop = true;
-
-// ============================================
-// GAME CONTROL FUNCTIONS
-// ============================================
-
-function startGame(selectedLevel) {
-    level = selectedLevel;
-    menu.style.display = 'none';
-    game.style.display = 'block';
-    resetGame();
-    gameRunning = true;
-    isPaused = false;
-    
-    // Set speed based on level
-    switch(level) {
-        case 1: speed = 150; break;  // Mudah
-        case 2: speed = 125; break;  // Normal
-        case 3: speed = 100; break;  // Susah
-    }
-    
-    try { bgMusic.play(); } catch(e) { console.log("Audio file not found"); }
-    
-    gameLoop = setInterval(update, speed);
-}
-
-function resetGame() {
-    snake = [{x: 400, y: 300}];
-    direction = {x: 0, y: 0};
-    nextDirection = {x: 0, y: 0};
-    score = 0;
-    scoreElement.textContent = 'Skor: ' + score;
-    setObstacles();
-    spawnFood();
-    gameRunning = false;
-    isPaused = false;
-    clearInterval(gameLoop);
-    
-    if (bgMusic) {
-        bgMusic.pause();
-        bgMusic.currentTime = 0;
-    }
-    
-    draw();
-}
-
-function pauseGame() {
-    if (!gameRunning) return;
-    isPaused = !isPaused;
-    
-    if (isPaused) {
-        clearInterval(gameLoop);
-        showPauseOverlay();
-    } else {
-        hidePauseOverlay();
-        gameLoop = setInterval(update, speed);
-    }
-}
-
-function showPauseOverlay() {
-    const overlay = document.createElement('div');
-    overlay.id = 'pause-overlay';
-    overlay.style.cssText = `
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(0, 0, 0, 0.8);
-        padding: 30px;
-        border-radius: 15px;
-        border: 2px solid #00ff88;
-        text-align: center;
-        z-index: 100;
-    `;
-    overlay.innerHTML = `
-        <h2 style="color: #00ff88; margin-bottom: 20px;">⏸️ PAUSED</h2>
-        <button onclick="pauseGame()" style="padding: 10px 30px; font-size: 16px; cursor: pointer;">
-            ▶️ Lanjut
-        </button>
-    `;
-    game.appendChild(overlay);
-}
-
-function hidePauseOverlay() {
-    const overlay = document.getElementById('pause-overlay');
-    if (overlay) overlay.remove();
-}
-
-function gameOver() {
-    gameRunning = false;
-    isPaused = false;
-    clearInterval(gameLoop);
-    
-    // Update high score
-    if (score > highScore) {
-        highScore = score;
-        localStorage.setItem('snakeHighScore', highScore);
-    }
-    
-    if (bgMusic) {
-        bgMusic.pause();
-    }
-    
-    try { gameOverSound.play(); } catch(e) {}
-    
-    alert(`Game Over!\nSkor: ${score}\nHigh Score: ${highScore}`);
-    menu.style.display = 'block';
-    game.style.display = 'none';
-}
-
-// ============================================
-// GAME LOGIC FUNCTIONS
-// ============================================
-
-function setObstacles() {
-    obstacles = [];
-    let numObstacles;
-    
-    switch (level) {
-        case 1: numObstacles = 0; break;
-        case 2: numObstacles = 5; break;
-        case 3: numObstacles = 10; break;
-    }
-    
-    for (let i = 0; i < numObstacles; i++) {
-        let obs;
-        do {
-            obs = {
-                x: Math.floor(Math.random() * 40) * 20,
-                y: Math.floor(Math.random() * 30) * 20
-            };
-        } while (isOccupied(obs.x, obs.y));
-        obstacles.push(obs);
-    }
-}
-
-function spawnFood() {
-    food = [];
-    for (let i = 0; i < 3; i++) {
-        let f;
-        do {
-            f = {
-                x: Math.floor(Math.random() * 40) * 20,
-                y: Math.floor(Math.random() * 30) * 20
-            };
-        } while (isOccupied(f.x, f.y));
-        food.push(f);
-    }
-}
-
-function isOccupied(x, y) {
-    // Check snake
-    for (let segment of snake) {
-        if (segment.x === x && segment.y === y) return true;
-    }
-    // Check obstacles
-    for (let obs of obstacles) {
-        if (obs.x === x && obs.y === y) return true;
-    }
-    // Check food
-    for (let f of food) {
-        if (f.x === x && f.y === y) return true;
-    }
-    return false;
-}
-
-function update() {
-    if (!gameRunning || isPaused) return;
-
-    // Update direction from buffer
-    if (nextDirection.x !== 0 || nextDirection.y !== 0) {
-        if (nextDirection.x !== -direction.x && nextDirection.y !== -direction.y) {
-            direction = nextDirection;
-        }
-    }
-
-    // Calculate new head position
-    const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
-
-    // Wrap around canvas
-    if (head.x < 0) head.x = 780;
-    else if (head.x >= 800) head.x = 0;
-    if (head.y < 0) head.y = 580;
-    else if (head.y >= 600) head.y = 0;
-
-    snake.unshift(head);
-
-    // Check obstacle collision
-    for (let obs of obstacles) {
-        if (head.x === obs.x && head.y === obs.y) {
-            gameOver();
-            return;
-        }
-    }
-
-    // Check food collision
-    let ateFood = false;
-    for (let i = 0; i < food.length; i++) {
-        if (head.x === food[i].x && head.y === food[i].y) {
-            score++;
-            scoreElement.textContent = 'Skor: ' + score;
-            try { eatSound.play(); } catch(e) {}
-            food.splice(i, 1);
-            ateFood = true;
-            break;
-        }
-    }
-    
-    if (ateFood) {
-        let f;
-        do {
-            f = {
-                x: Math.floor(Math.random() * 40) *
+draw();
