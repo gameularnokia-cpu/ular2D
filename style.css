@@ -1,191 +1,122 @@
-/* Reset & Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
-body {
-    margin: 0;
-    background-color: #000;
-    font-family: Arial, sans-serif;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
+
+body{
+
+height:100vh;
+
+display:flex;
+justify-content:center;
+align-items:center;
+
+background:
+linear-gradient(135deg,#1e3c72,#2a5298);
+
+font-family:"Courier New",monospace;
+
+color:#00ff00;
+
 }
 
-/* Menu Styles */
-#menu {
-    text-align: center;
-    z-index: 10;
-    background: rgba(0, 0, 0, 0.85);
-    padding: 40px;
-    border-radius: 15px;
-    border: 2px solid #0f3460;
-    box-shadow: 0 0 20px rgba(15, 52, 96, 0.5);
-    animation: fadeIn 0.5s ease-in;
+
+.game-container{
+
+background:#000;
+
+padding:20px;
+
+border:3px solid #00ff00;
+
+border-radius:10px;
+
+text-align:center;
+
+box-shadow:0 0 30px #00ff00;
+
 }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
+
+
+canvas{
+
+background:#000;
+
+border:2px solid #00ff00;
+
+display:block;
+
+margin:15px auto;
+
+image-rendering:pixelated;
+
 }
 
-#menu h1 {
-    font-size: 48px;
-    margin-bottom: 20px;
-    color: #00ff88;
-    text-shadow: 0 0 10px #00ff88;
+
+
+.score{
+
+font-size:22px;
+
+margin:10px;
+
 }
 
-#menu p {
-    font-size: 20px;
-    margin-bottom: 30px;
-    color: #ccc;
+
+
+.game-over{
+
+display:none;
+
+color:red;
+
+font-size:20px;
+
+margin:10px;
+
 }
 
-/* Game Container */
-#game {
-    display: none;
-    width: 100vw;
-    height: 100vh;
-    position: relative;
+
+
+.controls{
+
+color:#ccc;
+
+margin:10px;
+
 }
 
-/* Controls */
-#hp-controls, #pc-controls {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 15px;
-    border-radius: 15px;
-    backdrop-filter: blur(10px);
+
+
+button{
+
+padding:12px 20px;
+
+margin:5px;
+
+background:#00ff00;
+
+border:none;
+
+font-family:inherit;
+
+font-weight:bold;
+
+cursor:pointer;
+
+border-radius:5px;
+
 }
 
-#hp-controls {
-    left: 10px;
-}
 
-#pc-controls {
-    right: 10px;
-}
 
-#hp-controls h3, #pc-controls h3 {
-    font-size: 14px;
-    margin-bottom: 10px;
-    color: #00ff88;
-}
+button:disabled{
 
-.control-row {
-    display: flex;
-    justify-content: center;
-    margin: 5px 0;
-}
+background:#333;
 
-#hp-controls button, #pc-controls button {
-    width: 50px;
-    height: 50px;
-    margin: 5px;
-    font-size: 24px;
-    cursor: pointer;
-    background: linear-gradient(145deg, #0f3460, #16213e);
-    border: 2px solid #00ff88;
-    border-radius: 10px;
-    color: white;
-    transition: all 0.2s ease;
-    touch-action: manipulation;
-}
+color:#777;
 
-#hp-controls button:active, #pc-controls button:active {
-    transform: scale(0.95);
-    background: linear-gradient(145deg, #16213e, #0f3460);
-}
-
-/* Canvas */
-#canvas-container {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-}
-
-canvas {
-    border: 3px solid #00ff88;
-    background: radial-gradient(circle, #1a1a2e, #16213e, #0f3460, #000);
-    border-radius: 10px;
-    box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-}
-
-/* Score & Buttons */
-#score {
-    position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 28px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px #000;
-    color: #00ff88;
-}
-
-#reset-btn {
-    position: absolute;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #e94560;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    padding: 12px 30px;
-    font-size: 16px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-#reset-btn:hover {
-    background-color: #c0354c;
-    transform: translateX(-50%) scale(1.05);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    #menu {
-        padding: 20px;
-    }
-    
-    #menu h1 {
-        font-size: 32px;
-    }
-    
-    #hp-controls, #pc-controls {
-        display: none;
-    }
-    
-    canvas {
-        width: 90vw;
-        height: 67.5vw;
-        max-width: 600px;
-        max-height: 450px;
-    }
-    
-    #score {
-        font-size: 20px;
-    }
-}
-
-/* Touch Device Detection */
-@media (hover: none) and (pointer: coarse) {
-    #hp-controls {
-        display: flex !important;
-    }
 }
